@@ -47,7 +47,10 @@ export default function Header() {
           <Link to="#" className="text-sm/6 font-semibold text-gray-900">
             Sales
           </Link>
-          <Link to="#" className="text-sm/6 font-semibold text-gray-900">
+          <Link
+            to="/purchases"
+            className="text-sm/6 font-semibold text-gray-900"
+          >
             Purchases
           </Link>
         </div>

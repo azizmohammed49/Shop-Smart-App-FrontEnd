@@ -7,6 +7,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 import Products from "./components/products/Products";
 import Suppliers from "./components/suppliers/suppliers";
+import Purchases from "./components/purchases/purchases";
 
 const App = () => {
   return (
@@ -36,6 +37,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Suppliers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchases"
+          element={
+            <ProtectedRoute>
+              <Purchases />
             </ProtectedRoute>
           }
         />
