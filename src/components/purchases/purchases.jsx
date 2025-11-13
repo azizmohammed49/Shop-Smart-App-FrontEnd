@@ -6,11 +6,17 @@ import { useNavigate } from "react-router-dom";
 const Purchases = () => {
   const user = useSelector((state) => state.user.data);
   const [data, setData] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     supplierId: "", // Changed back to supplierId
+    products: [],
     date: "",
     totalAmount: "",
   });
@@ -40,24 +46,99 @@ const Purchases = () => {
     }
   };
 
+  const getSuppliers = async () => {
+    try {
+      const resp = await axios.get(
+        `${import.meta.env.VITE_API_URL}/supplier/all`,
+        {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        }
+      );
+      setSuppliers(resp.data.data || []);
+    } catch (err) {
+      console.error("Error fetching suppliers:", err);
+    }
+  };
+
+  const getProducts = async () => {
+    try {
+      const resp = await axios.get(
+        `${import.meta.env.VITE_API_URL}/products/allProducts`,
+        {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        }
+      );
+      setProducts(resp.data.data || []);
+    } catch (err) {
+      console.error("Error fetching Products:", err);
+    }
+  };
+
   useEffect(() => {
     if (user?.token) {
       getPurchases();
+      getSuppliers();
+      getProducts();
     }
   }, [user?.token]);
+
+  // Handler to add a product to purchase with default quantity and price
+  const addProduct = () => {
+    setSelectedProducts([
+      ...selectedProducts,
+      { productId: "", quantity: 1, price: 0 },
+    ]);
+  };
+
+  // Handle changes for each product in the list
+  const handleProductChange = (index, field, value) => {
+    const newProducts = [...selectedProducts];
+    newProducts[index][field] =
+      field === "quantity" || field === "price" ? Number(value) : value;
+
+    // Auto-set price when productId changes
+    if (field === "productId") {
+      const productInfo = products.find((p) => p._id === value);
+      if (productInfo) {
+        newProducts[index].price = productInfo.purchasePrice;
+      }
+    }
+
+    setSelectedProducts(newProducts);
+  };
+
+  // Calculate total amount whenever selectedProducts changes
+  useEffect(() => {
+    const total = selectedProducts.reduce(
+      (sum, p) => sum + p.quantity * p.price,
+      0
+    );
+    setTotalAmount(total);
+  }, [selectedProducts]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddSupplier = async (e) => {
+  const handleAddPurchase = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      if (!selectedSupplier || selectedProducts.length === 0) {
+        alert("Please select supplier and add at least one product.");
+        return;
+      }
+
+      const payload = {
+        supplierId: selectedSupplier,
+        products: selectedProducts,
+        totalAmount,
+        date: new Date(),
+      };
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/purchase`,
-        formData,
+        `${import.meta.env.VITE_API_URL}/purchase/addPurchase`,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -173,7 +254,26 @@ const Purchases = () => {
           <div className="bg-white rounded-lg shadow-lg p-6 w-96">
             <h3 className="text-lg font-bold mb-4">Add New Purchase</h3>
 
-            <form onSubmit={handleAddSupplier}>
+            <form onSubmit={handleAddPurchase}>
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Supplier *
+                </label>
+                <select
+                  name="supplier"
+                  value={formData.supplierId}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select supplier</option>
+                  {suppliers.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.supplierName}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Supplier ID *
