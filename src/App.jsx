@@ -8,6 +8,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Products from "./components/products/Products";
 import Suppliers from "./components/suppliers/suppliers";
 import Purchases from "./components/purchases/purchases";
+import AddPurchase from "./components/purchases/AddPurchase";
 
 const App = () => {
   return (
@@ -40,14 +41,18 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/purchases"
-          element={
-            <ProtectedRoute>
-              <Purchases />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/purchases">
+          <Route
+            index
+            path="/purchases/"
+            element={
+              <ProtectedRoute>
+                <Purchases />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/purchases/addPurchase" element={<AddPurchase />} />
+        </Route>
       </Routes>
     </div>
   );

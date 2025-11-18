@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+axios.defaults.withCredentials = true;
+
 const Purchases = () => {
   const user = useSelector((state) => state.user.data);
   const [data, setData] = useState([]);
@@ -28,14 +30,11 @@ const Purchases = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/purchase/`,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/purchase/`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
       console.log("[Purchases] Data loaded:", response.data);
       setData(response.data.data || []); // Changed this line
       setLoading(false);
@@ -48,12 +47,9 @@ const Purchases = () => {
 
   const getSuppliers = async () => {
     try {
-      const resp = await axios.get(
-        `${import.meta.env.VITE_API_URL}/supplier/all`,
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
+      const resp = await axios.get(`${import.meta.env.VITE_API_URL}/supplier/supplierMenu`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       setSuppliers(resp.data.data || []);
     } catch (err) {
       console.error("Error fetching suppliers:", err);
@@ -62,12 +58,9 @@ const Purchases = () => {
 
   const getProducts = async () => {
     try {
-      const resp = await axios.get(
-        `${import.meta.env.VITE_API_URL}/products/allProducts`,
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
+      const resp = await axios.get(`${import.meta.env.VITE_API_URL}/products/allProducts`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       setProducts(resp.data.data || []);
     } catch (err) {
       console.error("Error fetching Products:", err);
@@ -84,17 +77,13 @@ const Purchases = () => {
 
   // Handler to add a product to purchase with default quantity and price
   const addProduct = () => {
-    setSelectedProducts([
-      ...selectedProducts,
-      { productId: "", quantity: 1, price: 0 },
-    ]);
+    setSelectedProducts([...selectedProducts, { productId: "", quantity: 1, price: 0 }]);
   };
 
   // Handle changes for each product in the list
   const handleProductChange = (index, field, value) => {
     const newProducts = [...selectedProducts];
-    newProducts[index][field] =
-      field === "quantity" || field === "price" ? Number(value) : value;
+    newProducts[index][field] = field === "quantity" || field === "price" ? Number(value) : value;
 
     // Auto-set price when productId changes
     if (field === "productId") {
@@ -109,10 +98,7 @@ const Purchases = () => {
 
   // Calculate total amount whenever selectedProducts changes
   useEffect(() => {
-    const total = selectedProducts.reduce(
-      (sum, p) => sum + p.quantity * p.price,
-      0
-    );
+    const total = selectedProducts.reduce((sum, p) => sum + p.quantity * p.price, 0);
     setTotalAmount(total);
   }, [selectedProducts]);
 
@@ -136,15 +122,11 @@ const Purchases = () => {
         totalAmount,
         date: new Date(),
       };
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/purchase/addPurchase`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/purchase/addPurchase`, payload, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
       console.log("Purchase added:", res.data);
       setShowModal(false);
       setFormData({
@@ -161,20 +143,15 @@ const Purchases = () => {
     }
   };
 
-  if (loading)
-    return <div className="p-6 text-center">Loading Purchases...</div>;
+  if (loading) return <div className="p-6 text-center">Loading Purchases...</div>;
 
-  if (error)
-    return <div className="p-6 text-center text-red-500">Error: {error}</div>;
+  if (error) return <div className="p-6 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Purchases ({data.length})</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
+        <button onClick={() => navigate("/purchases/addPurchase")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           + Add Purchase
         </button>
       </div>
@@ -206,32 +183,16 @@ const Purchases = () => {
           <tbody>
             {data?.length > 0 ? (
               data.map((dt) => (
-                <tr
-                  key={dt._id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
-                >
-                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {dt._id?.slice(-8) || dt.id}
-                  </td>
+                <tr key={dt._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{dt._id?.slice(-8) || dt.id}</td>
                   <td className="px-6 py-4">
-                    {dt.date
-                      ? new Date(dt.date).toLocaleDateString()
-                      : dt.createdAt
-                      ? new Date(dt.createdAt).toLocaleDateString()
-                      : "-"}
+                    {dt.date ? new Date(dt.date).toLocaleDateString() : dt.createdAt ? new Date(dt.createdAt).toLocaleDateString() : "-"}
                   </td>
-                  <td className="px-6 py-4">
-                    {dt.supplierId?.supplierName || dt.supplierId?._id || "-"}
-                  </td>
+                  <td className="px-6 py-4">{dt.supplierId?.supplierName || dt.supplierId?._id || "-"}</td>
                   <td className="px-6 py-4">${dt.totalAmount || 0}</td>
+                  <td className="px-6 py-4">{Array.isArray(dt.products) ? dt.products.length : 0}</td>
                   <td className="px-6 py-4">
-                    {Array.isArray(dt.products) ? dt.products.length : 0}
-                  </td>
-                  <td className="px-6 py-4">
-                    <a
-                      href="#"
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
+                    <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                       Edit
                     </a>
                   </td>
@@ -256,9 +217,7 @@ const Purchases = () => {
 
             <form onSubmit={handleAddPurchase}>
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Supplier *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Supplier *</label>
                 <select
                   name="supplier"
                   value={formData.supplierId}
@@ -275,9 +234,7 @@ const Purchases = () => {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Supplier ID *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Supplier ID *</label>
                 <input
                   type="text"
                   name="supplierId" // Changed to supplierId
@@ -289,9 +246,7 @@ const Purchases = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Purchase Date *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Purchase Date *</label>
                 <input
                   type="date"
                   name="date" // Changed from purchaseDate
@@ -303,9 +258,7 @@ const Purchases = () => {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Total Amount *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Total Amount *</label>
                 <input
                   type="number"
                   name="totalAmount"
@@ -318,11 +271,7 @@ const Purchases = () => {
               </div>
 
               <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-                >
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
                   Cancel
                 </button>
                 <button

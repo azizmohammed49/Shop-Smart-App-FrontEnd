@@ -23,12 +23,9 @@ const Products = () => {
   const getData = async () => {
     try {
       setLoading(true);
-      const resp = await axios.get(
-        `${import.meta.env.VITE_API_URL}/products/allProducts`,
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
+      const resp = await axios.get(`${import.meta.env.VITE_API_URL}/products/allProducts`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       setData(resp.data.data || []);
       setLoading(false);
     } catch (err) {
@@ -40,12 +37,9 @@ const Products = () => {
 
   const getSuppliers = async () => {
     try {
-      const resp = await axios.get(
-        `${import.meta.env.VITE_API_URL}/supplier/all`,
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
+      const resp = await axios.get(`${import.meta.env.VITE_API_URL}/supplier/supplierMenu`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       setSuppliers(resp.data.data || []);
     } catch (err) {
       console.error("Error fetching suppliers:", err);
@@ -72,16 +66,12 @@ const Products = () => {
         imageURL: formData.imageURL || undefined,
       };
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/products/addProduct`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/products/addProduct`, payload, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       console.log("[Products] Product added:", response.data);
       setShowModal(false);
@@ -113,19 +103,14 @@ const Products = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.token]);
 
-  if (loading)
-    return <div className="p-6 text-center">Loading products...</div>;
-  if (error)
-    return <div className="p-6 text-center text-red-500">Error: {error}</div>;
+  if (loading) return <div className="p-6 text-center">Loading products...</div>;
+  if (error) return <div className="p-6 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Products ({data.length})</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
+        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           + Add Product
         </button>
       </div>
@@ -160,28 +145,17 @@ const Products = () => {
           <tbody>
             {data?.length ? (
               data.map((dt) => (
-                <tr
-                  key={dt._id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
-                >
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
+                <tr key={dt._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                  <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {dt.name}
                   </th>
                   <td className="px-6 py-4">{dt.category}</td>
-                  <td className="px-6 py-4">
-                    {dt?.supplier?.supplierName || dt?.supplier?._id}
-                  </td>
+                  <td className="px-6 py-4">{dt?.supplier?.supplierName || dt?.supplier?._id}</td>
                   <td className="px-6 py-4">{dt.purchasePrice}</td>
                   <td className="px-6 py-4">{dt.sellingPrice}</td>
                   <td className="px-6 py-4">{dt.stockQty}</td>
                   <td className="px-6 py-4">
-                    <a
-                      href="#"
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
+                    <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                       Edit
                     </a>
                   </td>
@@ -206,9 +180,7 @@ const Products = () => {
 
             <form onSubmit={handleAddProduct}>
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Name *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Name *</label>
                 <input
                   type="text"
                   name="name"
@@ -220,9 +192,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Category *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Category *</label>
                 <input
                   type="text"
                   name="category"
@@ -234,9 +204,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Supplier *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Supplier *</label>
                 <select
                   name="supplier"
                   value={formData.supplier}
@@ -254,9 +222,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Purchase Price *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Purchase Price *</label>
                 <input
                   type="number"
                   name="purchasePrice"
@@ -268,9 +234,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Selling Price *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Selling Price *</label>
                 <input
                   type="number"
                   name="sellingPrice"
@@ -282,9 +246,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Stock Qty *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Stock Qty *</label>
                 <input
                   type="number"
                   name="stockQty"
@@ -296,9 +258,7 @@ const Products = () => {
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Image URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Image URL</label>
                 <input
                   type="text"
                   name="imageURL"
@@ -309,11 +269,7 @@ const Products = () => {
               </div>
 
               <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-                >
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
                   Cancel
                 </button>
                 <button
